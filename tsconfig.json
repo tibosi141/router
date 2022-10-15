@@ -21,7 +21,10 @@
         "src/*"
       ]
     },
-    "types": ["element-plus/global"]
+    "types": [
+      "element-plus/global",
+      "pinia-plugin-persist"
+    ]
   },
   "include": [
     "src/**/*.ts",

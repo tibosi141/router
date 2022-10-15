@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="page">
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
@@ -12,7 +12,7 @@
       <el-form
         class="demo-form"
         ref="formRef"
-        :model="userInfo"
+        :model="userData"
         :rules="rules"
         :hide-required-asterisk="true"
       >
@@ -21,10 +21,10 @@
           prop="username"
         >
           <el-input
-            v-model="userInfo.username"
+            v-model="userData.username"
             placeholder="请输入账户"
-            clearable
             :prefix-icon="User"
+            clearable
           />
         </el-form-item>
         <el-form-item
@@ -32,10 +32,16 @@
           prop="password"
         >
           <el-input
-            v-model="userInfo.password"
+            v-model="userData.password"
             placeholder="请输入密码"
-            show-password
             :prefix-icon="Lock"
+            show-password
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-checkbox
+            v-model="userData.rememberMe"
+            label="记住密码"
           />
         </el-form-item>
         <el-form-item>
@@ -50,20 +56,27 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, reactive, toRaw } from 'vue'
-import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { useUserStore } from '@/stores/index'
+import { ref, reactive, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/index';
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import { setCookie } from '@/utils/auth'
+import type { UserData } from '@/types/user'
+import Cookies from 'js-cookie'
+import { decode, encode } from 'js-base64'
 
+const Route = useRoute()
 const Router = useRouter()
 const UserStore = useUserStore()
 
-const formRef = ref<FormInstance>()
-const { userInfo, loginStatus } = storeToRefs(UserStore)
+let redirect = ref<string>('/')
+let formRef = ref<FormInstance>()
+const userData = reactive<UserData>({
+  username: '',
+  password: '',
+  rememberMe: false
+})
 const rules = reactive<FormRules>({
   username: [
     { required: true, message: '请输入账号', trigger: 'blur' }
@@ -73,42 +86,71 @@ const rules = reactive<FormRules>({
   ]
 })
 
+const getUserData = () => {
+  const username = Cookies.get('username')
+  const password = Cookies.get('password')
+  const rememberMe = Cookies.get('rememberMe')
+
+  userData.username = username === undefined ? '' : username
+  userData.password = password === undefined ? '' : encode(password)
+  userData.rememberMe = rememberMe === undefined ? false : Boolean(rememberMe)
+}
 const onSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate(async (valid, fields) => {
     if (valid) {
-      UserStore.getLoginStatus()
-        .then(() => {
-          console.log(loginStatus.value, '-----loginStatus.value-----');
-          console.log(userInfo.value, '-----userInfo.value-----');
-          
-          if (loginStatus.value) {
-            setCookie('userInfo', JSON.stringify(userInfo.value))
+      if (userData.rememberMe) {
+        Cookies.set('username', userData.username)
+        Cookies.set('password', decode(userData.password))
+        Cookies.set('rememberMe', String(userData.rememberMe))
+      } else {
+        Cookies.remove('username')
+        Cookies.remove('password')
+        Cookies.remove('rememberMe')
+      }
+      UserStore.Login(userData)
+        .then(res => {
+          let { success, message } = res
+          UserStore.$patch((state) => {
+            state.loginStatus = success
+            state.userName = userData.username
+          })
+          if (success) {
             ElMessage.success({
-              message: '登录成功！',
+              message: '登录成功',
               duration: 1000,
               onClose () {
-                Router.push('/index')
+                Router.replace({ path: redirect.value })
               }
             })
           } else {
-            ElMessage.error('未知错误，请联系管理员')
+            ElMessage.error(message || '未知错误，请联系管理员解决')
             formEl.resetFields()
           }
         })
-
     } else {
       ElMessage.error('请将账号密码输入完整！')
       formEl.resetFields()
     }
   })
 }
+
+watchEffect(() => {
+  redirect.value =  Route.query && Route.query.redirect as string
+})
+
+getUserData()
 </script>
 
 <style lang="less" scoped>
+.page {
+  background: url('@/assets/images/login_bg.jpg') no-repeat 0 0;
+  background-size: 100% auto;
+}
+
 .box-card {
   width: 380px;
-  margin: 280px auto;
+  margin: 15% auto;
 
   .card-header {
     display: flex;
@@ -124,17 +166,26 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
       margin: 0 auto;
 
       .el-form-item {
-        margin-bottom: 28px;
+        margin-bottom: 22px;
+
+        &:nth-of-type(3) {
+          margin-top: -5px;
+          margin-bottom: 5px;
+        }
 
         &:last-child {
           margin-bottom: 0;
+
+          .el-form-item__content {
+            justify-content: center;
+          }
         }
 
         .el-form-item__content {
-          justify-content: center;
+          justify-content: flex-start;
 
           .el-form-item__error {
-            line-height: 20px;
+            line-height: 18px;
           }
         }
       }

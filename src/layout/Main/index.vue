@@ -34,7 +34,7 @@ const tabs = reactive({
 
 <style scoped lang="less">
 .main {
-  height: 720px;
+  flex: 1;
   padding: 20px 0;
   box-sizing: border-box;
 

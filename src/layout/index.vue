@@ -15,6 +15,8 @@ import Footer from './Footer/index.vue'
 
 <style scoped>
 .layout {
+  display: flex;
+  flex-direction: column;
   height: 100%;
 }
 </style>

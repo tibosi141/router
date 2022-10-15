@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import Cookies from 'js-cookie'
 import Layout from '@/layout/index.vue'
-import { getCookie } from '@/utils/auth'
 
 // 路由白名单
 const whiteRoute: Array<string> = ['/', '/root', '/home', '/layout', '/index', '/login']
@@ -50,19 +51,34 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const userInfo = getCookie('userInfo')
+  const token = Cookies.get('password')
 
-  if (to.name === 'Login' && userInfo) {
+  if (to.name === 'Login' && token) {
     next(from)
-  } else if (whiteRoute.includes(to.path) || userInfo) {
+  } else if (whiteRoute.includes(to.path) || token) {
     next()
   } else {
-    next({
-      name: 'Login',
-      query: {
-        fromPath: to.path
+    ElMessageBox.confirm(
+      '您还未登录，请先登录再进行访问！',
+      '网页提示',
+      {
+        confirmButtonText: '登录',
+        cancelButtonText: '取消',
+        type: 'info',
+        draggable: true
       }
-    })
+    )
+      .then(() => {
+        next({
+          name: 'Login',
+          query: {
+            redirect: to.path
+          }
+        })
+      })
+      .catch(() => {
+        ElMessage.info('您取消了登录！')
+      })
   }
 })
 

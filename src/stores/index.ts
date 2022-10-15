@@ -1,59 +1,39 @@
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
-interface Result {
-  success: boolean
-  code?: string,
-  message?: string
-}
-interface UserInfo {
-  username: string,
-  password: string
-}
+import { login } from '@/apis/user'
+import type { UserData, Result } from '@/types/user'
 
-const login = async (userInfo: UserInfo): Promise<Result> => {
-  const reslut = await fetch('/api//user/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-    },
-    body: JSON.stringify(userInfo)
-  })
-  return await reslut.json()
-}
+export const useUserStore = defineStore('User', () => {
+  const avatar = ref<string>('')
+  const userName = ref<string>('')
+  const loginStatus = ref<boolean>(false)
 
-export const useUserStore = defineStore('User', {
-  state: () => ({
-    loginStatus: false,
-    rememberMe: false,
-    userInfo: {
-      username: '',
-      password: ''
-    }
-  }),
-  actions: {
-    setLoginStatus (status: boolean) {
-      this.loginStatus = status
-    },
-    async getLoginStatus () {
-      let { success } = await login(this.userInfo)
-      console.log(success, '-----success-----');
+  const Login = (userData: UserData) => {
+    return new Promise<any>((resolve, reject) => {
+      login(userData)
+        .then(res => {
+          resolve(res)
+        }).catch((err) => {
+          reject(err)
+        })
+    })
 
-      this.setLoginStatus(success)
-    }
-  },
-  // 使用该插件，开启数据缓存
-  persist: {
-    //这里存储默认使用的是session
-    enabled: true,
-    strategies: [
-      {
-        //key的名称
-        key: 'My_User',
-        //更改默认存储，我更改为localStorage
-        storage: localStorage,
-        // 可以选择哪些进入local存储，这样就不用全部都进去存储了
-        // 默认是全部进去存储
-        paths: ['userInfo', 'rememberMe']
-      }
-    ]
   }
+
+  return {
+    avatar,
+    userName,
+    loginStatus,
+    Login,
+  }
+}, {
+  enabled: true,
+  strategies: [{
+      // 自定义存储的 key，默认是 store.$id
+      key: 'My_User',
+      // 可以指定任何 extends Storage 的实例，默认是 sessionStorage
+      storage: localStorage,
+      // state 中的字段名，按组打包储存
+      paths: ['userInfo', 'rememberMe']
+  }]
 })

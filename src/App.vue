@@ -24,7 +24,7 @@
 </script>
 
 <template>
-  <div>
+  <div class="app">
     <router-view></router-view>
     <!-- <h1 @click="replacePage"> -->
       <!-- 小满最骚 -->
@@ -44,9 +44,7 @@
 </template>
 
 <style scoped>
-/* h1 button {
-  margin-left: 100px;
-  padding: 8px 16px;
-  font-size: 14px;
-} */
+.app {
+  height: inherit;
+}
 </style>

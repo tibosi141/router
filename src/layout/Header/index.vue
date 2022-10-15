@@ -3,7 +3,7 @@
     <div class="header-logo"></div>
     <div class="header-nav">
       <el-button
-        v-if="getCookie('userInfo')"
+        v-if="loginStatus"
         text
       >欢迎！{{ userInfo.username }}</el-button>
       <p
@@ -18,17 +18,14 @@
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/index'
-import { getCookie } from '@/utils/auth'
 
 const Router = useRouter()
 const UserStore = useUserStore()
 
-const { userInfo } = storeToRefs(UserStore)
+const { userInfo, loginStatus } = storeToRefs(UserStore)
 
 const toLogin = () => {
-  Router.push({
-    name: 'Login'
-  })
+  Router.push({ name: 'Login' })
 }
 </script>
 
