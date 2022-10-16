@@ -12,16 +12,13 @@
 
 <script setup lang='ts'>
 import { data } from '../../assets/list.json'
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 
-const shop = data.find(v => Number(route.params?.id) === v.id);
-
-console.log(shop);
+const shop = data.find(v => Number(route.params?.id) === v.id)
 </script>
 
-<style scoped>
-
+<style lang="less" scoped>
 </style>

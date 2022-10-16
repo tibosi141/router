@@ -1,32 +1,43 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import NProgress from 'nprogress'
 import Cookies from 'js-cookie'
 import Layout from '@/layout/index.vue'
 
+declare module 'vue-router' {
+  interface RouteMeta {
+    title: string
+  }
+}
+
 // 路由白名单
-const whiteRoute: Array<string> = ['/', '/root', '/home', '/layout', '/index', '/login']
+const whiteRoute: Array<string> = ['/', '/root', '/home', '/layout', '/index', '/login', '/detail/1']
 // 业务路由
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/index',
     name: 'Index',
-    component: () => import('@/views/index/index.vue')
+    component: () => import('@/views/index/index.vue'),
+    meta: {
+      title: '首页'
+    }
   },
   {
     path: '/detail/:id',
     name: 'Detail',
-    components: {
-      default: () => import('@/views/detail/index.vue'),
-      details: () => import('@/components/details.vue'),
-      question: () => import('@/components/question.vue'),
-      comments: () => import('@/components/comments.vue'),
+    component: () => import('@/views/detail/index.vue'),
+    meta: {
+      title: '商品详情页'
     }
   },
   {
     path: '/draw',
     name: 'Draw',
-    component: () => import('@/views/draw/index.vue')
+    component: () => import('@/views/draw/index.vue'),
+    meta: {
+      title: '词云页'
+    }
   }
 ]
 // 系统默认路由
@@ -37,20 +48,28 @@ const baseRoutes: Array<RouteRecordRaw> = [
     component: Layout,
     redirect: { name: 'Index' },
     alias: ['/root', '/home', '/layout'],
-    children: routes
+    children: routes,
+    meta: {
+      title: '家'
+    }
   },
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/login/index.vue')
+    component: () => import('@/views/login/index.vue'),
+    meta: {
+      title: '登录页'
+    }
   }
 ]
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: baseRoutes
 })
 
 router.beforeEach((to, from, next) => {
+  document.title = to.meta.title
+  NProgress.start()
   const token = Cookies.get('password')
 
   if (to.name === 'Login' && token) {
@@ -64,7 +83,7 @@ router.beforeEach((to, from, next) => {
       {
         confirmButtonText: '登录',
         cancelButtonText: '取消',
-        type: 'info',
+        type: 'warning',
         draggable: true
       }
     )
@@ -78,8 +97,13 @@ router.beforeEach((to, from, next) => {
       })
       .catch(() => {
         ElMessage.info('您取消了登录！')
+        next({ name: 'Home' })
       })
   }
+})
+
+router.afterEach((to, from) => {
+  NProgress.done()
 })
 
 export default router

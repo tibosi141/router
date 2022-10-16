@@ -4,7 +4,10 @@
       <template #header>
         <div class="card-header">
           <span>用户登录</span>
-          <el-link type="primary">
+          <el-link 
+            type="primary" 
+            href="/index"
+          >
             没有账户？前去注册
           </el-link>
         </div>
@@ -62,7 +65,7 @@ import { useUserStore } from '@/stores/index';
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import type { UserData } from '@/types/user'
+import type { UserData } from '@/utils/types/user'
 import Cookies from 'js-cookie'
 import { decode, encode } from 'js-base64'
 

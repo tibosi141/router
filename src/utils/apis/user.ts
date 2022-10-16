@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { UserData, Result } from '@/types/user'
+import type { UserData, Result } from '@/utils/types/user'
 
 export function login(data: UserData) {
   return request({

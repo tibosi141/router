@@ -1,12 +1,12 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { login } from '@/apis/user'
-import type { UserData, Result } from '@/types/user'
+import { login } from '@/utils/apis/user'
+import type { UserData, Result } from '@/utils/types/user'
 
 export const useUserStore = defineStore('User', () => {
-  const avatar = ref<string>('')
-  const userName = ref<string>('')
-  const loginStatus = ref<boolean>(false)
+  let avatar = ref<string>('')
+  let userName = ref<string>('')
+  let loginStatus = ref<boolean>(false)
 
   const Login = (userData: UserData) => {
     return new Promise<any>((resolve, reject) => {
@@ -17,7 +17,6 @@ export const useUserStore = defineStore('User', () => {
           reject(err)
         })
     })
-
   }
 
   return {
