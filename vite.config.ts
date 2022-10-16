@@ -4,8 +4,7 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default ({ mode }: any) => {
-  console.log(mode);
-  console.log(loadEnv(mode, process.cwd()))
+  const env = loadEnv(mode, process.cwd())
 
   return defineConfig({
     resolve: {
@@ -15,10 +14,15 @@ export default ({ mode }: any) => {
     },
     server: {
       proxy: {
-        '/api': {
-          target: 'http://10.50.0.32:8080',
+        [env.VITE_APP_BASE_API]: {
+          // target: 'http://10.50.0.32:8080',
+          target: 'http://localhost:8080/',
           changeOrigin: true,
-        }
+          rewrite: (path) => {
+            const reg = new RegExp('^' + env.VITE_APP_BASE_API)
+            return path.replace(reg, '/api')
+          }
+        },
       }
     },
     plugins: [vue()]

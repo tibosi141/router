@@ -12,7 +12,7 @@ declare module 'vue-router' {
 }
 
 // 路由白名单
-const whiteRoute: Array<string> = ['/', '/root', '/home', '/layout', '/index', '/login', '/detail/1']
+const whiteRoute: Array<string> = ['/', '/root', '/home', '/layout', '/index', '/login', '/covid19']
 // 业务路由
 const routes: Array<RouteRecordRaw> = [
   {
@@ -60,7 +60,15 @@ const baseRoutes: Array<RouteRecordRaw> = [
     meta: {
       title: '登录页'
     }
-  }
+  },
+  {
+    path: '/covid19',
+    name: 'Covid19',
+    component: () => import('@/views/covid19/index.vue'),
+    meta: {
+      title: '实时更新：全国新冠疫情'
+    }
+  },
 ]
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

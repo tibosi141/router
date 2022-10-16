@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <table>
-      <caption>商品列表</caption>
+      <caption @click="router.push({name: 'Covid19'})">商品列表</caption>
       <thead>
         <tr>
           <th>商品名称</th>
