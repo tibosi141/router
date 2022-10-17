@@ -2,7 +2,38 @@
   <div class="page">
     <div class="page-left"></div>
     <div class="page-center"></div>
-    <div class="page-right"></div>
+    <div class="page-right">
+      <el-table
+        :data="CovidStore.current"
+        size="small"
+        style="width: 100%"
+      >
+        <el-table-column
+          prop="date"
+          label="日期"
+        />
+        <el-table-column
+          prop="name"
+          label="城市"
+        />
+        <el-table-column
+          prop="today"
+          label="新增"
+        >
+          <template #default="scope">
+            {{ scope.row.today.confirm }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="total"
+          label="积累"
+        >
+          <template #default="scope">
+            {{ scope.row.total.confirm }}
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
 
@@ -14,38 +45,30 @@ import '@/assets/china';
 import { geoCoordMap } from '@/assets/geoMap';
 
 const CovidStore = useCovidStore();
-
-onMounted(async () => {
-  await CovidStore.getData();
-
-  const city =
-    CovidStore.data.diseaseh5Shelf.areaTree[0].children;
+const initCharts = () => {
+  const city = CovidStore.data.diseaseh5Shelf.areaTree[0].children;
   const data = city.map(item => {
     return {
       name: item.name,
-      value: geoCoordMap[item.name].concat(
-        item.total.nowConfirm
-      ),
+      value: geoCoordMap[item.name].concat(item.total.nowConfirm),
+      children: item.children
     };
   });
-  const chinaMap = Echarts.init(
-    document.querySelector('.page-center') as HTMLElement
-  );
+  const chinaMap = Echarts.init(document.querySelector('.page-center') as HTMLElement);
 
-  const option = {
+  chinaMap.setOption({
     geo: {
       show: true,
       map: 'china',
-      roam: 'scale',
+      roam: true,
       zoom: 0.8,
       scaleLimit: {
-        //滚轮缩放的极限控制
         min: 0.5,
         max: 2,
       },
       label: {
         show: true,
-        color: '#fff',
+        color: '#FFFFFF',
         fontSize: 14,
         fontWeight: 100,
       },
@@ -73,26 +96,26 @@ onMounted(async () => {
       emphasis: {
         focus: 'self',
         label: {
-          color: '#fff',
+          color: '#FFFFFF',
           fontSize: 16,
           fontWeight: 'bold',
         },
         itemStyle: {
-          areaColor: '#389BB7',
-          borderColor: '#00d2ff',
+          areaColor: '#7BD5E4',
+          borderColor: '#00D2FF',
           borderWidth: 2,
           borderType: 'solid',
         },
       },
       select: {
         label: {
-          color: '#fff',
+          color: '#303133',
           fontSize: 16,
           fontWeight: 'bold',
         },
         itemStyle: {
-          areaColor: '#409EFF',
-          borderColor: '#409EFF',
+          areaColor: '#00D2FF',
+          borderColor: '#00D2FF',
           borderWidth: 2,
           borderType: 'solid',
         },
@@ -103,33 +126,25 @@ onMounted(async () => {
         type: 'map',
         map: 'china',
         geoIndex: 0,
-        aspectScale: 0.75, //长宽比
-        showLegendSymbol: false, // 存在legend时显示
-        label: {
-          show: true,
-          color: '#fff',
-        },
-        roam: true,
-        emphasis: {
-          show: false,
-          areaColor: '#2B91B7',
-        },
         data: data,
       },
       {
         type: 'scatter',
         coordinateSystem: 'geo',
+        selectedMode: 'multiple',
+        zlevel: 1,
         symbol: 'pin',
-        symbolSize: 40,
+        symbolSize: 45,
         label: {
           show: true,
-          color: '#fff',
-          formatter(item: any) {
+          color: '#FFFFFF',
+          formatter (item: any) {
             return item.value[2];
           },
         },
-        data: data,
-        zlevel: 1,
+        itemStyle: {
+          color: '#409EFF'
+        },
         emphasis: {
           focus: 'self',
           scale: 1.8,
@@ -140,31 +155,36 @@ onMounted(async () => {
         },
         select: {
           label: {
-            color: 'red',
+            color: '#FFFFFF',
             fontWeight: 'bold',
           },
           itemStyle: {
-            color: 'yellowgreen',
+            color: '#E6A23C',
+            borderColor: '#E6A23C',
           }
         },
-        selectedMode: 'multiple'
+        data: data,
       },
     ],
-  };
+  });
+  chinaMap.on('click', (e: any) => {
+    console.log(e);
+    CovidStore.$patch((state) => {
+      state.current = e.data.children
+    })
+  })
+}
 
-  chinaMap.setOption(option);
+onMounted(async () => {
+  await CovidStore.getData();
+  initCharts();
 });
 </script>
 
 <style lang="less" scoped>
 .page {
   display: flex;
-  background: linear-gradient(
-    to right,
-    #24243e,
-    #302b63,
-    #0f0c29
-  );
+  background: linear-gradient(to right, #373b44, #4f6485, #373b44);
 
   &-left,
   &-right {

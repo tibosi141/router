@@ -13,7 +13,7 @@ import 'element-plus/dist/index.css'
 import 'nprogress/nprogress.css'
 import './style.css'
 
-const elementOptions = { locale: zhCn }
+const elementOptions = {} || { locale: zhCn }
 const app = createApp(App)
 const pinia = createPinia()
 // 使用该插件

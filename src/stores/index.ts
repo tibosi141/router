@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { login } from '@/utils/apis/user'
 import type { UserData, Result } from '@/utils/types/user'
 import { getRealData } from '@/utils/apis/covid19';
-import type { RootObject } from '@/utils/types/covid19'
+import type { Children, RootObject } from '@/utils/types/covid19'
 
 export const useUserStore = defineStore('User', () => {
   let avatar = ref<string>('')
@@ -42,7 +42,8 @@ export const useUserStore = defineStore('User', () => {
 export const useCovidStore = defineStore({
   id: 'Covid19',
   state: () => ({
-    data: <RootObject>{}
+    data: <RootObject>{},
+    current: <Children[]>[]
   }),
   actions: {
     async getData() {
