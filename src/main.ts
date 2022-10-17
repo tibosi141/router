@@ -9,11 +9,9 @@ import piniaPersist from 'pinia-plugin-persist'
 import elementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
-import 'element-plus/dist/index.css'
-import 'nprogress/nprogress.css'
 import './style.css'
 
-const elementOptions = {} || { locale: zhCn }
+const elementOptions = { locale: zhCn }
 const app = createApp(App)
 const pinia = createPinia()
 // 使用该插件

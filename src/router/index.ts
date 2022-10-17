@@ -46,7 +46,7 @@ const baseRoutes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'Home',
     component: Layout,
-    redirect: { name: 'Index' },
+    redirect: { name: 'Covid19' },
     alias: ['/root', '/home', '/layout'],
     children: routes,
     meta: {

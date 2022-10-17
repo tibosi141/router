@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { login } from '@/utils/apis/user'
 import type { UserData, Result } from '@/utils/types/user'
-import { getRealData } from '@/utils/apis/covid19';
+import { getRealData } from '@/utils/apis/covid19'
 import type { Children, RootObject } from '@/utils/types/covid19'
 
 export const useUserStore = defineStore('User', () => {

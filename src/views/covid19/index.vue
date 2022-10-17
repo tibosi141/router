@@ -6,19 +6,21 @@
       <el-table
         :data="CovidStore.current"
         size="small"
-        style="width: 100%"
+        table-layout="auto"
+        :border="true"
+        :row-class-name="tableRowClassName"
       >
         <el-table-column
-          prop="date"
-          label="日期"
-        />
-        <el-table-column
           prop="name"
-          label="城市"
+          label="地区"
+          align="center"
         />
         <el-table-column
           prop="today"
-          label="新增"
+          label="当日新增"
+          align="center"
+          sortable
+          :sort-method="todayConfirmSort"
         >
           <template #default="scope">
             {{ scope.row.today.confirm }}
@@ -26,10 +28,35 @@
         </el-table-column>
         <el-table-column
           prop="total"
-          label="积累"
+          label="积累确诊"
+          align="center"
+          sortable 
+          :sort-method="totalConfirmSort"
         >
           <template #default="scope">
             {{ scope.row.total.confirm }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="total"
+          label="治愈"
+          align="center"
+          sortable 
+          :sort-method="totalHealSort"
+        >
+          <template #default="scope">
+            {{ scope.row.total.heal }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="total"
+          label="死亡"
+          align="center"
+          sortable 
+          :sort-method="todayDeadSort"
+        >
+          <template #default="scope">
+            {{ scope.row.total.dead }}
           </template>
         </el-table-column>
       </el-table>
@@ -43,18 +70,55 @@ import { useCovidStore } from '@/stores/index';
 import * as Echarts from 'echarts';
 import '@/assets/china';
 import { geoCoordMap } from '@/assets/geoMap';
+import type { Children } from '@/utils/types/covid19';
 
 const CovidStore = useCovidStore();
+
+const tableRowClassName = ({
+  row,
+  rowIndex,
+}: {
+  row: Children;
+  rowIndex: number;
+}) => {
+  if (row.today.confirm >= 10) {
+    return 'danger-row';
+  } else if (
+    row.today.confirm > 0 &&
+    row.today.confirm < 9
+  ) {
+    return 'warning-row';
+  }
+  return 'primary-row';
+};
+const todayConfirmSort = (a:Children, b:Children) => {
+  return a.today.confirm - b.today.confirm
+}
+const totalConfirmSort = (a:Children, b:Children) => {
+  return a.total.confirm - b.total.confirm
+}
+const totalHealSort = (a:Children, b:Children) => {
+  return a.total.heal - b.total.heal
+}
+const todayDeadSort = (a:Children, b:Children) => {
+  return a.total.dead - b.total.dead
+}
+
 const initCharts = () => {
-  const city = CovidStore.data.diseaseh5Shelf.areaTree[0].children;
+  const city =
+    CovidStore.data.diseaseh5Shelf.areaTree[0].children;
   const data = city.map(item => {
     return {
       name: item.name,
-      value: geoCoordMap[item.name].concat(item.total.nowConfirm),
-      children: item.children
+      value: geoCoordMap[item.name].concat(
+        item.total.nowConfirm
+      ),
+      children: item.children,
     };
   });
-  const chinaMap = Echarts.init(document.querySelector('.page-center') as HTMLElement);
+  const chinaMap = Echarts.init(
+    document.querySelector('.page-center') as HTMLElement
+  );
 
   chinaMap.setOption({
     geo: {
@@ -138,20 +202,20 @@ const initCharts = () => {
         label: {
           show: true,
           color: '#FFFFFF',
-          formatter (item: any) {
+          formatter(item: any) {
             return item.value[2];
           },
         },
         itemStyle: {
-          color: '#409EFF'
+          color: '#409EFF',
         },
         emphasis: {
           focus: 'self',
           scale: 1.8,
           label: {
             fontSize: 18,
-            fontWeight: 'bold'
-          }
+            fontWeight: 'bold',
+          },
         },
         select: {
           label: {
@@ -161,7 +225,7 @@ const initCharts = () => {
           itemStyle: {
             color: '#E6A23C',
             borderColor: '#E6A23C',
-          }
+          },
         },
         data: data,
       },
@@ -169,11 +233,11 @@ const initCharts = () => {
   });
   chinaMap.on('click', (e: any) => {
     console.log(e);
-    CovidStore.$patch((state) => {
-      state.current = e.data.children
-    })
-  })
-}
+    CovidStore.$patch(state => {
+      state.current = e.data.children;
+    });
+  });
+};
 
 onMounted(async () => {
   await CovidStore.getData();
@@ -186,9 +250,42 @@ onMounted(async () => {
   display: flex;
   background: linear-gradient(to right, #373b44, #4f6485, #373b44);
 
-  &-left,
-  &-right {
+  &-left{
     width: 400px;
+  }
+  &-right {
+    width: 450px;
+
+    :deep(.el-table) {
+      background-color: transparent;
+      --el-table-header-bg-color: transparent;
+      --el-table-border-color: #787b81;
+
+      thead {
+        tr {
+          background-color: transparent;
+        }
+        div.cell {
+          color: #79bbff;
+          font-weight: bold;
+        }
+      }
+
+      .cell,
+      span {
+        color: #fff;
+      }
+
+      .primary-row {
+        background-color: transparent;
+      }
+      .warning-row {
+        --el-table-tr-bg-color: var(--el-color-warning-light-3);
+      }
+      .danger-row {
+        --el-table-tr-bg-color: var(--el-color-danger-light-3);
+      }
+    }
   }
 
   &-center {
