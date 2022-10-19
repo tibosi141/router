@@ -1,10 +1,49 @@
 <template>
   <div class="page">
-    <div class="page-left"></div>
+    <div class="page-left">
+      <div class="page-left-grid">
+        <section>
+          <p>
+            较上日+{{ CovidStore.chinaAdd.localConfirmH5 || 0 }}
+          </p>
+          <p>{{ CovidStore.chinaTotal.localConfirm || 0 }}</p>
+          <p>本土现有确诊</p>
+        </section>
+        <section>
+          <p>较上日+{{ CovidStore.chinaAdd.nowConfirm || 0 }}</p>
+          <p>{{ CovidStore.chinaTotal.nowConfirm || 0 }}</p>
+          <p>现有确诊</p>
+        </section>
+        <section>
+          <p>较上日+{{ CovidStore.chinaAdd.confirm || 0 }}</p>
+          <p>{{ CovidStore.chinaTotal.confirm || 0 }}</p>
+          <p>积累确诊</p>
+        </section>
+        <section>
+          <p>较上日+{{ CovidStore.chinaAdd.noInfect || 0 }}</p>
+          <p>{{ CovidStore.chinaTotal.noInfect || 0 }}</p>
+          <p>无症状感染者</p>
+        </section>
+        <section>
+          <p>
+            较上日+{{ CovidStore.chinaAdd.importedCase || 0 }}
+          </p>
+          <p>{{ CovidStore.chinaTotal.importedCase || 0 }}</p>
+          <p>境外输入</p>
+        </section>
+        <section>
+          <p>较上日+{{ CovidStore.chinaAdd.dead || 0 }}</p>
+          <p>{{ CovidStore.chinaTotal.dead || 0 }}</p>
+          <p>积累死亡</p>
+        </section>
+      </div>
+      <div class="page-left-pie"></div>
+      <div class="page-left-line"></div>
+    </div>
     <div class="page-center"></div>
     <div class="page-right">
       <el-table
-        :data="CovidStore.current"
+        :data="CovidStore.currentData"
         size="small"
         table-layout="auto"
         :border="true"
@@ -30,7 +69,7 @@
           prop="total"
           label="积累确诊"
           align="center"
-          sortable 
+          sortable
           :sort-method="totalConfirmSort"
         >
           <template #default="scope">
@@ -41,7 +80,7 @@
           prop="total"
           label="治愈"
           align="center"
-          sortable 
+          sortable
           :sort-method="totalHealSort"
         >
           <template #default="scope">
@@ -52,7 +91,7 @@
           prop="total"
           label="死亡"
           align="center"
-          sortable 
+          sortable
           :sort-method="todayDeadSort"
         >
           <template #default="scope">
@@ -91,20 +130,19 @@ const tableRowClassName = ({
   }
   return 'primary-row';
 };
-const todayConfirmSort = (a:Children, b:Children) => {
-  return a.today.confirm - b.today.confirm
-}
-const totalConfirmSort = (a:Children, b:Children) => {
-  return a.total.confirm - b.total.confirm
-}
-const totalHealSort = (a:Children, b:Children) => {
-  return a.total.heal - b.total.heal
-}
-const todayDeadSort = (a:Children, b:Children) => {
-  return a.total.dead - b.total.dead
-}
-
-const initCharts = () => {
+const todayConfirmSort = (a: Children, b: Children) => {
+  return a.today.confirm - b.today.confirm;
+};
+const totalConfirmSort = (a: Children, b: Children) => {
+  return a.total.confirm - b.total.confirm;
+};
+const totalHealSort = (a: Children, b: Children) => {
+  return a.total.heal - b.total.heal;
+};
+const todayDeadSort = (a: Children, b: Children) => {
+  return a.total.dead - b.total.dead;
+};
+const initMap = () => {
   const city =
     CovidStore.data.diseaseh5Shelf.areaTree[0].children;
   const data = city.map(item => {
@@ -231,48 +269,193 @@ const initCharts = () => {
       },
     ],
   });
+
   chinaMap.on('click', (e: any) => {
     console.log(e);
     CovidStore.$patch(state => {
-      state.current = e.data.children;
+      state.currentData = e.data.children;
     });
+  });
+};
+const initPie = () => {
+  const data = CovidStore.cityDetail.sort((a, b) => b.local_confirm_add - a.local_confirm_add).slice(0,10)
+  const chinaPie = Echarts.init(
+    document.querySelector('.page-left-pie') as HTMLElement
+  );
+
+  chinaPie.setOption({
+    tooltip: {
+      trigger: 'item',
+    },
+    series: [
+      {
+        name: 'Access From',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        itemStyle: {
+          borderRadius: 4,
+          borderColor: '#fff',
+          borderWidth: 1,
+        },
+        label: {
+          show: true,
+          color: '#fff',
+        },
+        emphasis: {
+          label: {
+            show: true,
+            color: '#41b0db',
+            fontSize: '16',
+            fontWeight: 'bold',
+          },
+          itemStyle: {
+            borderColor: '#41b0db',
+            borderRadius: 0,
+            borderWidth: 2,
+          }
+        },
+        labelLine: {
+          show: true,
+        },
+        data: data.map(item => {
+          return {
+            name: item.city,
+            value: item.local_confirm_add
+          }
+        }),
+      },
+    ],
+  });
+};
+const initLine = () => {
+  const data = CovidStore.cityDetail.sort((a, b) => Number(b.local_wzz_add) - Number(a.local_wzz_add)).slice(0,5)
+  const chinaPie = Echarts.init(
+    document.querySelector('.page-left-line') as HTMLElement
+  );
+
+  chinaPie.setOption({
+    title: {
+      text: '全国前五新增无症状患者城市',
+      top: '4%',
+      left: 'center',
+      textStyle: {
+        color: '#41b0db'
+      }
+    },
+    tooltip: {
+      trigger: 'axis',
+    },
+    xAxis: {
+      type: 'category',
+      axisLine: {
+        lineStyle: {
+          color: '#fff'
+        }
+      },
+      data: data.map(item => item.city)
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: {
+        lineStyle: {
+          color: '#41b0db',
+        }
+      }
+    },
+    series: [
+      {
+        data: data.map(item => item.local_wzz_add),
+        type: 'line',
+        smooth: true,
+        label: {
+          show: true,
+          color: '#fff',
+        },
+        emphasis: {
+          label: {
+            color: '#e6a23c',
+            fontSize: '14',
+            fontWeight: 'bold',
+          },
+        },
+      }
+    ]
   });
 };
 
 onMounted(async () => {
   await CovidStore.getData();
-  initCharts();
+  initMap();
+  initPie();
+  initLine();
 });
 </script>
 
 <style lang="less" scoped>
+@itemBg: #223651;
+@itemColor: #41b0db;
+@itemBorder: #212028;
 .page {
+  padding: 10px;
   display: flex;
-  background: linear-gradient(to right, #373b44, #4f6485, #373b44);
+  background: linear-gradient(
+    to right,
+    #373b44,
+    #4f6485,
+    #373b44
+  );
 
-  &-left{
+  &-left {
     width: 400px;
+
+    &-grid {
+      color: #fff;
+      display: grid;
+      grid-template-columns: auto auto auto;
+      grid-template-rows: auto auto;
+
+      section {
+        padding: 10px;
+        text-align: center;
+        background: @itemBg;
+        border: 1px solid @itemBorder;
+
+        p:nth-child(2) {
+          padding: 10px 0;
+          color: @itemColor;
+          font-weight: bold;
+        }
+      }
+    }
+
+    &-pie {
+      height: 350px;
+      margin-top: 16px;
+      background: @itemBg;
+    }
+
+    &-line {
+      height: 320px;
+      margin-top: 16px;
+      background: @itemBg;
+    }
   }
   &-right {
     width: 450px;
 
     :deep(.el-table) {
-      background-color: transparent;
-      --el-table-header-bg-color: transparent;
-      --el-table-border-color: #787b81;
+      background: @itemBg;
+      --el-table-header-bg-color: @itemBg;
+      --el-table-border-color: @itemBorder;
 
       thead {
-        tr {
-          background-color: transparent;
-        }
-        div.cell {
-          color: #79bbff;
+        .cell {
+          color: @itemColor;
           font-weight: bold;
         }
       }
 
-      .cell,
-      span {
+      .cell {
         color: #fff;
       }
 
@@ -280,10 +463,16 @@ onMounted(async () => {
         background-color: transparent;
       }
       .warning-row {
-        --el-table-tr-bg-color: var(--el-color-warning-light-3);
+        --el-table-tr-bg-color: @itemBg;
+        .cell {
+          color: #e6a23c;
+        }
       }
       .danger-row {
-        --el-table-tr-bg-color: var(--el-color-danger-light-3);
+        --el-table-tr-bg-color: @itemBg;
+        .cell {
+          color: #f56c6c;
+        }
       }
     }
   }

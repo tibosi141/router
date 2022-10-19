@@ -1,9 +1,9 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { login } from '@/utils/apis/user'
-import type { UserData, Result } from '@/utils/types/user'
+import type { UserData } from '@/utils/types/user'
 import { getRealData } from '@/utils/apis/covid19'
-import type { Children, RootObject } from '@/utils/types/covid19'
+import type { Children, ChinaAdd, ChinaTotal, LocalCityNCOVDataList, RootObject } from '@/utils/types/covid19'
 
 export const useUserStore = defineStore('User', () => {
   let avatar = ref<string>('')
@@ -43,12 +43,18 @@ export const useCovidStore = defineStore({
   id: 'Covid19',
   state: () => ({
     data: <RootObject>{},
-    current: <Children[]>[]
+    currentData: <Children[]>[],
+    chinaAdd: <ChinaAdd>{},
+    chinaTotal: <ChinaTotal>{},
+    cityDetail: <LocalCityNCOVDataList[]>[]
   }),
   actions: {
     async getData() {
       const result = await getRealData()
       this.data = result
+      this.chinaAdd = this.data.diseaseh5Shelf.chinaAdd
+      this.chinaTotal = this.data.diseaseh5Shelf.chinaTotal
+      this.cityDetail = this.data.localCityNCOVDataList
     }
   }
 })
