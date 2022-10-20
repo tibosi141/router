@@ -12,7 +12,7 @@ declare module 'vue-router' {
 }
 
 // 路由白名单
-const whiteRoute: Array<string> = ['/', '/root', '/home', '/layout', '/index', '/login', '/covid19']
+const whiteRoute: Array<string> = ['/', '/root', '/home', '/layout', '/index', '/login', '/covid19', '/draw']
 // 业务路由
 const routes: Array<RouteRecordRaw> = [
   {

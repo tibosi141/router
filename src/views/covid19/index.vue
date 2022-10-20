@@ -109,7 +109,7 @@ import { useCovidStore } from '@/stores/index';
 import * as Echarts from 'echarts';
 import '@/assets/china';
 import { geoCoordMap } from '@/assets/geoMap';
-import type { Children } from '@/utils/types/covid19';
+import type { Children } from '@/utils/interface/covid19';
 
 const CovidStore = useCovidStore();
 
@@ -143,8 +143,7 @@ const todayDeadSort = (a: Children, b: Children) => {
   return a.total.dead - b.total.dead;
 };
 const initMap = () => {
-  const city =
-    CovidStore.data.diseaseh5Shelf.areaTree[0].children;
+  const city = CovidStore.data.diseaseh5Shelf.areaTree[0].children;
   const data = city.map(item => {
     return {
       name: item.name,
@@ -154,9 +153,7 @@ const initMap = () => {
       children: item.children,
     };
   });
-  const chinaMap = Echarts.init(
-    document.querySelector('.page-center') as HTMLElement
-  );
+  const chinaMap = Echarts.init(document.querySelector('.page-center') as HTMLElement);
 
   chinaMap.setOption({
     geo: {
@@ -240,7 +237,7 @@ const initMap = () => {
         label: {
           show: true,
           color: '#FFFFFF',
-          formatter(item: any) {
+          formatter (item: any) {
             return item.value[2];
           },
         },
@@ -271,17 +268,14 @@ const initMap = () => {
   });
 
   chinaMap.on('click', (e: any) => {
-    console.log(e);
     CovidStore.$patch(state => {
       state.currentData = e.data.children;
     });
   });
 };
 const initPie = () => {
-  const data = CovidStore.cityDetail.sort((a, b) => b.local_confirm_add - a.local_confirm_add).slice(0,10)
-  const chinaPie = Echarts.init(
-    document.querySelector('.page-left-pie') as HTMLElement
-  );
+  const data = CovidStore.cityDetail.sort((a, b) => b.local_confirm_add - a.local_confirm_add).slice(0, 10)
+  const chinaPie = Echarts.init(document.querySelector('.page-left-pie') as HTMLElement);
 
   chinaPie.setOption({
     tooltip: {
@@ -328,10 +322,8 @@ const initPie = () => {
   });
 };
 const initLine = () => {
-  const data = CovidStore.cityDetail.sort((a, b) => Number(b.local_wzz_add) - Number(a.local_wzz_add)).slice(0,5)
-  const chinaPie = Echarts.init(
-    document.querySelector('.page-left-line') as HTMLElement
-  );
+  const data = CovidStore.cityDetail.sort((a, b) => Number(b.local_wzz_add) - Number(a.local_wzz_add)).slice(0, 5)
+  const chinaPie = Echarts.init(document.querySelector('.page-left-line') as HTMLElement);
 
   chinaPie.setOption({
     title: {
@@ -395,18 +387,20 @@ onMounted(async () => {
 @itemBg: #223651;
 @itemColor: #41b0db;
 @itemBorder: #212028;
+
 .page {
   padding: 10px;
   display: flex;
-  background: linear-gradient(
-    to right,
-    #373b44,
-    #4f6485,
-    #373b44
-  );
+  background: linear-gradient(to right,
+      #373b44,
+      #4f6485,
+      #373b44);
 
   &-left {
     width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     &-grid {
       color: #fff;
@@ -440,6 +434,7 @@ onMounted(async () => {
       background: @itemBg;
     }
   }
+
   &-right {
     width: 450px;
 
@@ -462,14 +457,18 @@ onMounted(async () => {
       .primary-row {
         background-color: transparent;
       }
+
       .warning-row {
         --el-table-tr-bg-color: @itemBg;
+
         .cell {
           color: #e6a23c;
         }
       }
+
       .danger-row {
         --el-table-tr-bg-color: @itemBg;
+
         .cell {
           color: #f56c6c;
         }

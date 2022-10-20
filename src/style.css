@@ -5,7 +5,7 @@
 /* 进度条样式 */
 @import url('nprogress/nprogress.css');
 /* 动画 */
-@import url('animate.css');
+/* @import url('animate.css'); */
 
 body {
   max-height: 100vh;
@@ -16,9 +16,6 @@ button {
   border: 1px solid transparent;
   padding: 6px 10px;
   font-size: 12px;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
