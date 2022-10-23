@@ -5,7 +5,7 @@
 /* 进度条样式 */
 @import url('nprogress/nprogress.css');
 /* 动画 */
-@import url('animate.css');
+/* @import url('animate.css'); */
 
 body {
   max-height: 100vh;
