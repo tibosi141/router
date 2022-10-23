@@ -76,7 +76,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title
   NProgress.start()
   const token = Cookies.get('password')
 
@@ -111,6 +110,7 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from) => {
+  document.title = to.meta.title
   NProgress.done()
 })
 
