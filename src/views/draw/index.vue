@@ -16,29 +16,30 @@
       v-show="false"
     >
       <a
-        v-cloak
-        v-for="item in tagArr"
-        :key="item.id"
+        v-for="item in CovidStore.cityDetail"
+        :key="item.city"
         href="javascript:;"
-      >{{item.name}}</a>
+      >{{item.city}}</a>
     </div>
   </div>
 </template>
 
 <script setup lang='ts'>
 import { ref, reactive, onMounted, nextTick } from 'vue';
-import TagCanvas from 'tag-canvas'
+import { useCovidStore } from '@/stores/index';
+import TagCanvas from 'tag-canvas';
 type PersonInfo = {
   createTime: string,
   id: number,
   name: string,
   no: string,
   settingId?: number
-}
+};
 
-const myCanvas = ref<HTMLCanvasElement>()
-const myCanvasContainer = ref<HTMLElement>()
-const tagArr = reactive<Array<PersonInfo>>([])
+const CovidStore = useCovidStore();
+const myCanvas = ref<HTMLCanvasElement>();
+const myCanvasContainer = ref<HTMLElement>();
+const tagArr = reactive<Array<PersonInfo>>([]);
 
 const initCanvas = (updateFlag?: boolean) => {
   const options = {
@@ -64,34 +65,35 @@ const initCanvas = (updateFlag?: boolean) => {
     // shadow: '#fff', //每个标签后面阴影的颜色。
     // shadowBlur: 100, //标记阴影模糊量,以像素为单位。
     // shadowOffset: [5, 0], //标记阴影的X和Y偏移量,以像素为单位。
-  }
+  };
 
   try {
     if (updateFlag) {
       TagCanvas.Update("myCanvas")
     } else {
       // 初始化词云
-      myCanvas.value!.width = myCanvasContainer.value!.offsetWidth
-      myCanvas.value!.height = myCanvasContainer.value!.offsetHeight
-      TagCanvas.Start('myCanvas', 'tags', options)
+      myCanvas.value!.width = myCanvasContainer.value!.offsetWidth;
+      myCanvas.value!.height = myCanvasContainer.value!.offsetHeight;
+      TagCanvas.Start('myCanvas', 'tags', options);
     }
   } catch (e) {
-    myCanvasContainer.value!.innerHTML = '换个现代浏览器吧！'
+    myCanvasContainer.value!.innerHTML = '换个现代浏览器吧！';
   }
-}
+};
 
 onMounted(async () => {
-  await fetch('/api/setting/query')
-    .then(r => r.json())
-    .then(res => {
-      const members: Array<PersonInfo> = res.data.members
-      tagArr.push(...members)
-    })
+  await CovidStore.getData();
+  // await fetch('/api/setting/query')
+  //   .then(r => r.json())
+  //   .then(res => {
+  //     const members: Array<PersonInfo> = res.data.members
+  //     tagArr.push(...members)
+  //   })
 
-  nextTick(() => {
-    initCanvas()
-  })
-})
+  // nextTick(() => {
+  initCanvas();
+  // })
+});
 </script>
 
 <style lang="less" scoped>

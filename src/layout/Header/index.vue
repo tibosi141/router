@@ -5,7 +5,7 @@
       <el-button
         v-if="loginStatus"
         text
-      >欢迎！{{ userInfo.username }}</el-button>
+      >欢迎！{{ userName }}</el-button>
       <p
         v-else
         @click="toLogin"
@@ -22,7 +22,7 @@ import { useUserStore } from '@/stores/index'
 const Router = useRouter()
 const UserStore = useUserStore()
 
-const { userInfo, loginStatus } = storeToRefs(UserStore)
+const { userName, loginStatus } = storeToRefs(UserStore)
 
 const toLogin = () => {
   Router.push({ name: 'Login' })

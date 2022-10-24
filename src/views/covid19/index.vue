@@ -120,36 +120,23 @@ const tableRowClassName = ({
   row: Children;
   rowIndex: number;
 }) => {
-  if (row.today.confirm >= 10) {
+  if (row.today.confirm >= 10)
     return 'danger-row';
-  } else if (
-    row.today.confirm > 0 &&
-    row.today.confirm < 9
-  ) {
+  else if (row.today.confirm > 0 && row.today.confirm < 9)
     return 'warning-row';
-  }
-  return 'primary-row';
+  else
+    return 'primary-row';
 };
-const todayConfirmSort = (a: Children, b: Children) => {
-  return a.today.confirm - b.today.confirm;
-};
-const totalConfirmSort = (a: Children, b: Children) => {
-  return a.total.confirm - b.total.confirm;
-};
-const totalHealSort = (a: Children, b: Children) => {
-  return a.total.heal - b.total.heal;
-};
-const todayDeadSort = (a: Children, b: Children) => {
-  return a.total.dead - b.total.dead;
-};
+const todayConfirmSort = (a: Children, b: Children) => a.today.confirm - b.today.confirm;
+const totalConfirmSort = (a: Children, b: Children) => a.total.confirm - b.total.confirm;
+const totalHealSort = (a: Children, b: Children) => a.total.heal - b.total.heal;
+const todayDeadSort = (a: Children, b: Children) => a.total.dead - b.total.dead;
 const initMap = () => {
   const city = CovidStore.data.diseaseh5Shelf.areaTree[0].children;
   const data = city.map(item => {
     return {
       name: item.name,
-      value: geoCoordMap[item.name].concat(
-        item.total.nowConfirm
-      ),
+      value: geoCoordMap[item.name].concat(item.total.nowConfirm),
       children: item.children,
     };
   });
@@ -268,14 +255,12 @@ const initMap = () => {
   });
 
   chinaMap.on('click', (e: any) => {
-    CovidStore.$patch(state => {
-      state.currentData = e.data.children;
-    });
+    CovidStore.$patch(state => { state.currentData = e.data.children });
   });
 };
 const initPie = () => {
-  const data = CovidStore.cityDetail.sort((a, b) => b.local_confirm_add - a.local_confirm_add).slice(0, 10)
   const chinaPie = Echarts.init(document.querySelector('.page-left-pie') as HTMLElement);
+  const data = CovidStore.cityDetail.sort((a, b) => b.local_confirm_add - a.local_confirm_add).slice(0, 10);
 
   chinaPie.setOption({
     tooltip: {
@@ -322,8 +307,8 @@ const initPie = () => {
   });
 };
 const initLine = () => {
-  const data = CovidStore.cityDetail.sort((a, b) => Number(b.local_wzz_add) - Number(a.local_wzz_add)).slice(0, 5)
   const chinaPie = Echarts.init(document.querySelector('.page-left-line') as HTMLElement);
+  const data = CovidStore.cityDetail.sort((a, b) => Number(b.local_wzz_add) - Number(a.local_wzz_add)).slice(0, 5);
 
   chinaPie.setOption({
     title: {

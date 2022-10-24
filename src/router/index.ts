@@ -7,7 +7,8 @@ import Layout from '@/layout/index.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
-    title: string
+    title: string,
+    transition?: string
   }
 }
 
@@ -46,7 +47,7 @@ const baseRoutes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'Home',
     component: Layout,
-    redirect: { name: 'Covid19' },
+    redirect: { name: 'Index' },
     alias: ['/root', '/home', '/layout'],
     children: routes,
     meta: {
