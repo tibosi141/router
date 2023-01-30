@@ -2,12 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import NProgress from 'nprogress'
-import Cookies from 'js-cookie'
+import { getToken } from '@/utils/auth'
 import Layout from '@/layout/index.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
-    title: string,
+    title: string
     transition?: string
   }
 }
@@ -21,25 +21,25 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Index',
     component: () => import('@/views/index/index.vue'),
     meta: {
-      title: '首页'
-    }
+      title: '首页',
+    },
   },
   {
     path: '/detail/:id',
     name: 'Detail',
     component: () => import('@/views/detail/index.vue'),
     meta: {
-      title: '商品详情页'
-    }
+      title: '商品详情页',
+    },
   },
   {
     path: '/draw',
     name: 'Draw',
     component: () => import('@/views/draw/index.vue'),
     meta: {
-      title: '词云页'
-    }
-  }
+      title: '词云页',
+    },
+  },
 ]
 // 系统默认路由
 const baseRoutes: Array<RouteRecordRaw> = [
@@ -51,56 +51,52 @@ const baseRoutes: Array<RouteRecordRaw> = [
     alias: ['/root', '/home', '/layout'],
     children: routes,
     meta: {
-      title: '家'
-    }
+      title: '家',
+    },
   },
   {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/login/index.vue'),
     meta: {
-      title: '登录页'
-    }
+      title: '登录页',
+    },
   },
   {
     path: '/covid19',
     name: 'Covid19',
     component: () => import('@/views/covid19/index.vue'),
     meta: {
-      title: '实时更新：全国新冠疫情'
-    }
+      title: '实时更新：全国新冠疫情',
+    },
   },
 ]
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: baseRoutes
+  routes: baseRoutes,
 })
 
 router.beforeEach((to, from, next) => {
   NProgress.start()
-  const token = Cookies.get('password')
+  const token = getToken()
 
   if (to.name === 'Login' && token) {
     next(from)
   } else if (whiteRoute.includes(to.path) || token) {
     next()
   } else {
-    ElMessageBox.confirm(
-      '您还未登录，请先登录再进行访问！',
-      '网页提示',
-      {
-        confirmButtonText: '登录',
-        cancelButtonText: '取消',
-        type: 'warning',
-        draggable: true
-      }
-    )
+    ElMessageBox.confirm('请先登录再进行访问！', '网页提示', {
+      confirmButtonText: '登录',
+      cancelButtonText: '取消',
+      type: 'warning',
+      draggable: true,
+    })
       .then(() => {
         next({
           name: 'Login',
           query: {
-            redirect: to.path
-          }
+            redirect: to.path,
+          },
         })
       })
       .catch(() => {

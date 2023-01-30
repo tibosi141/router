@@ -1,33 +1,22 @@
-import { ref } from 'vue'
+import { login } from '@/assets/apis/user'
+import type { UserData, UserInfo } from '@/utils/interface/user'
 import { defineStore } from 'pinia'
-import { login } from '@/utils/apis/user'
-import type { UserData } from '@/utils/interface/user'
-import { getRealData } from '@/utils/apis/covid19'
-import type { Children, ChinaAdd, ChinaTotal, LocalCityNCOVDataList, RootObject } from '@/utils/interface/covid19'
+import { reactive } from 'vue'
 
-export const useUserStore = defineStore('User', () => {
-  let avatar = ref<string>('')
-  let userName = ref<string>('')
-  let loginStatus = ref<boolean>(false)
-
-  const Login = (userData: UserData) => {
-    return new Promise<any>((resolve, reject) => {
-      login(userData)
-        .then(res => {
-          resolve(res)
-        }).catch((err) => {
-          reject(err)
-        })
+export const useUserStore = defineStore(
+  'User',
+  () => {
+    const userInfo = reactive<UserInfo>({
+      userName: '',
     })
-  }
 
-  return {
-    avatar,
-    userName,
-    loginStatus,
-    Login,
+    const Login = async (data: UserData) => {
+      const res = await login(data)
+
+    }
+
+    return { userInfo, Login }
   }
-},
   //  {
   //   enabled: true,
   //   strategies: [{
@@ -40,23 +29,3 @@ export const useUserStore = defineStore('User', () => {
   //   }]
   // }
 )
-
-export const useCovidStore = defineStore({
-  id: 'Covid19',
-  state: () => ({
-    data: <RootObject>{},
-    currentData: <Children[]>[],
-    chinaAdd: <ChinaAdd>{},
-    chinaTotal: <ChinaTotal>{},
-    cityDetail: <LocalCityNCOVDataList[]>[]
-  }),
-  actions: {
-    async getData () {
-      const result = await getRealData()
-      this.data = result
-      this.chinaAdd = this.data.diseaseh5Shelf.chinaAdd
-      this.chinaTotal = this.data.diseaseh5Shelf.chinaTotal
-      this.cityDetail = this.data.localCityNCOVDataList
-    }
-  }
-})

@@ -1,11 +1,9 @@
-export type UserData =  {
-  username: string,
-  password: string,
-  rememberMe: boolean,
+export type UserData = {
+  userName: string
+  password: string
+  code: string
 }
 
-export type Result = {
-  success: boolean
-  code?: string,
-  message?: string
+export type UserInfo = {
+  userName: string
 }

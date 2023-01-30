@@ -2,31 +2,34 @@
   <div class="header">
     <div class="header-logo"></div>
     <div class="header-nav">
-      <el-button
-        v-if="loginStatus"
+      <ElButton
+        v-if="userInfo.userName"
         text
-      >欢迎！{{ userName }}</el-button>
+      >
+        欢迎！{{ userInfo.userName }}
+      </ElButton>
       <p
         v-else
         @click="toLogin"
-      >去登陆</p>
+      >
+        去登陆
+      </p>
     </div>
   </div>
 </template>
 
-<script setup lang='ts'>
+<script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/index'
+import { ElButton } from 'element-plus'
 
 const Router = useRouter()
 const UserStore = useUserStore()
 
-const { userName, loginStatus } = storeToRefs(UserStore)
+const { userInfo } = storeToRefs(UserStore)
 
-const toLogin = () => {
-  Router.push({ name: 'Login' })
-}
+const toLogin = () => Router.push({ name: 'Login' })
 </script>
 
 <style scoped lang="less">

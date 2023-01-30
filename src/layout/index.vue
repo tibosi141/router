@@ -2,7 +2,7 @@
   <div class="layout">
     <Header />
     <Main />
-    <Footer />
+    <!-- <Footer /> -->
   </div>
 </template>
 

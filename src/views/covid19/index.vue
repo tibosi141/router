@@ -3,9 +3,7 @@
     <div class="page-left">
       <div class="page-left-grid">
         <section>
-          <p>
-            较上日+{{ CovidStore.chinaAdd.localConfirmH5 || 0 }}
-          </p>
+          <p>较上日+{{ CovidStore.chinaAdd.localConfirmH5 || 0 }}</p>
           <p>{{ CovidStore.chinaTotal.localConfirm || 0 }}</p>
           <p>本土现有确诊</p>
         </section>
@@ -25,9 +23,7 @@
           <p>无症状感染者</p>
         </section>
         <section>
-          <p>
-            较上日+{{ CovidStore.chinaAdd.importedCase || 0 }}
-          </p>
+          <p>较上日+{{ CovidStore.chinaAdd.importedCase || 0 }}</p>
           <p>{{ CovidStore.chinaTotal.importedCase || 0 }}</p>
           <p>境外输入</p>
         </section>
@@ -104,43 +100,35 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useCovidStore } from '@/stores/index';
-import * as Echarts from 'echarts';
-import '@/assets/china';
-import { geoCoordMap } from '@/assets/geoMap';
-import type { Children } from '@/utils/interface/covid19';
+import { onMounted } from 'vue'
+import { useCovidStore } from '@/stores/covid19'
+import { ElTable, ElTableColumn } from 'element-plus'
+import * as Echarts from 'echarts'
+import '@/assets/china'
+import { geoCoordMap } from '@/assets/geoMap'
+import type { Children } from '@/utils/interface/covid19'
 
-const CovidStore = useCovidStore();
+const CovidStore = useCovidStore()
 
-const tableRowClassName = ({
-  row,
-  rowIndex,
-}: {
-  row: Children;
-  rowIndex: number;
-}) => {
-  if (row.today.confirm >= 10)
-    return 'danger-row';
-  else if (row.today.confirm > 0 && row.today.confirm < 9)
-    return 'warning-row';
-  else
-    return 'primary-row';
-};
-const todayConfirmSort = (a: Children, b: Children) => a.today.confirm - b.today.confirm;
-const totalConfirmSort = (a: Children, b: Children) => a.total.confirm - b.total.confirm;
-const totalHealSort = (a: Children, b: Children) => a.total.heal - b.total.heal;
-const todayDeadSort = (a: Children, b: Children) => a.total.dead - b.total.dead;
+const tableRowClassName = ({ row, rowIndex }: { row: Children; rowIndex: number }) => {
+  if (row.today.confirm >= 10) return 'danger-row'
+  else if (row.today.confirm > 0 && row.today.confirm < 9) return 'warning-row'
+  else return 'primary-row'
+}
+const todayConfirmSort = (a: Children, b: Children) => a.today.confirm - b.today.confirm
+const totalConfirmSort = (a: Children, b: Children) => a.total.confirm - b.total.confirm
+const totalHealSort = (a: Children, b: Children) => a.total.heal - b.total.heal
+const todayDeadSort = (a: Children, b: Children) => a.total.dead - b.total.dead
 const initMap = () => {
-  const city = CovidStore.data.diseaseh5Shelf.areaTree[0].children;
+  const city = CovidStore.data.diseaseh5Shelf.areaTree[0].children
   const data = city.map(item => {
     return {
       name: item.name,
       value: geoCoordMap[item.name].concat(item.total.nowConfirm),
       children: item.children,
-    };
-  });
-  const chinaMap = Echarts.init(document.querySelector('.page-center') as HTMLElement);
+    }
+  })
+  const chinaMap = Echarts.init(document.querySelector('.page-center') as HTMLElement)
 
   chinaMap.setOption({
     geo: {
@@ -224,8 +212,8 @@ const initMap = () => {
         label: {
           show: true,
           color: '#FFFFFF',
-          formatter (item: any) {
-            return item.value[2];
+          formatter(item: any) {
+            return item.value[2]
           },
         },
         itemStyle: {
@@ -252,15 +240,17 @@ const initMap = () => {
         data: data,
       },
     ],
-  });
+  })
 
   chinaMap.on('click', (e: any) => {
-    CovidStore.$patch(state => { state.currentData = e.data.children });
-  });
-};
+    CovidStore.$patch(state => {
+      state.currentData = e.data.children
+    })
+  })
+}
 const initPie = () => {
-  const chinaPie = Echarts.init(document.querySelector('.page-left-pie') as HTMLElement);
-  const data = CovidStore.cityDetail.sort((a, b) => b.local_confirm_add - a.local_confirm_add).slice(0, 10);
+  const chinaPie = Echarts.init(document.querySelector('.page-left-pie') as HTMLElement)
+  const data = CovidStore.cityDetail.sort((a, b) => b.local_confirm_add - a.local_confirm_add).slice(0, 10)
 
   chinaPie.setOption({
     tooltip: {
@@ -291,7 +281,7 @@ const initPie = () => {
             borderColor: '#41b0db',
             borderRadius: 0,
             borderWidth: 2,
-          }
+          },
         },
         labelLine: {
           show: true,
@@ -299,16 +289,16 @@ const initPie = () => {
         data: data.map(item => {
           return {
             name: item.city,
-            value: item.local_confirm_add
+            value: item.local_confirm_add,
           }
         }),
       },
     ],
-  });
-};
+  })
+}
 const initLine = () => {
-  const chinaPie = Echarts.init(document.querySelector('.page-left-line') as HTMLElement);
-  const data = CovidStore.cityDetail.sort((a, b) => Number(b.local_wzz_add) - Number(a.local_wzz_add)).slice(0, 5);
+  const chinaPie = Echarts.init(document.querySelector('.page-left-line') as HTMLElement)
+  const data = CovidStore.cityDetail.sort((a, b) => Number(b.local_wzz_add) - Number(a.local_wzz_add)).slice(0, 5)
 
   chinaPie.setOption({
     title: {
@@ -316,8 +306,8 @@ const initLine = () => {
       top: '4%',
       left: 'center',
       textStyle: {
-        color: '#41b0db'
-      }
+        color: '#41b0db',
+      },
     },
     tooltip: {
       trigger: 'axis',
@@ -326,18 +316,18 @@ const initLine = () => {
       type: 'category',
       axisLine: {
         lineStyle: {
-          color: '#fff'
-        }
+          color: '#fff',
+        },
       },
-      data: data.map(item => item.city)
+      data: data.map(item => item.city),
     },
     yAxis: {
       type: 'value',
       axisLine: {
         lineStyle: {
           color: '#41b0db',
-        }
-      }
+        },
+      },
     },
     series: [
       {
@@ -355,17 +345,17 @@ const initLine = () => {
             fontWeight: 'bold',
           },
         },
-      }
-    ]
-  });
-};
+      },
+    ],
+  })
+}
 
 onMounted(async () => {
-  await CovidStore.getData();
-  initMap();
-  initPie();
-  initLine();
-});
+  await CovidStore.getData()
+  initMap()
+  initPie()
+  initLine()
+})
 </script>
 
 <style lang="less" scoped>
@@ -376,10 +366,7 @@ onMounted(async () => {
 .page {
   padding: 10px;
   display: flex;
-  background: linear-gradient(to right,
-      #373b44,
-      #4f6485,
-      #373b44);
+  background: linear-gradient(to right, #373b44, #4f6485, #373b44);
 
   &-left {
     width: 400px;
